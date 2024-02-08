@@ -13,8 +13,8 @@ async function bootstrap() {
 
   // Swagger
   const config = new DocumentBuilder()
-    .setTitle('NestJS project')
-    .setDescription('NestJS project API description')
+    .setTitle('MeTube')
+    .setDescription('MeTube API description')
     .setVersion('1.0')
     .addBearerAuth()
     .build();
@@ -26,8 +26,10 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('docs', app, document, customOptions);
 
+  // ValidationPipe
   app.useGlobalPipes(
     new ValidationPipe({
+      // class-transformer
       transform: true,
     })
   );
