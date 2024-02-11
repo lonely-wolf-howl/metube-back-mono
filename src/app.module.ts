@@ -4,6 +4,8 @@ import { AppService } from './app.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import postgresConfig from './config/postgres.config';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
+import { VideoModule } from './video/video.module';
+import { HealthModule } from './health/health.module';
 
 @Module({
   imports: [
@@ -32,6 +34,8 @@ import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
         return object;
       },
     }),
+    VideoModule,
+    HealthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
