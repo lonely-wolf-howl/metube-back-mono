@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { AuthModule } from './auth/auth.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import postgresConfig from './config/postgres.config';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
@@ -33,7 +32,6 @@ import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
         return object;
       },
     }),
-    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
