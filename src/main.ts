@@ -6,6 +6,7 @@ import {
   SwaggerModule,
 } from '@nestjs/swagger';
 import { AppModule } from './app.module';
+import * as cors from 'cors';
 
 async function bootstrap() {
   const port = 4000;
@@ -31,6 +32,13 @@ async function bootstrap() {
     new ValidationPipe({
       // class-transformer
       transform: true,
+    })
+  );
+
+  app.use(
+    cors({
+      origin: 'http://localhost:3000',
+      methods: 'GET, POST',
     })
   );
 
