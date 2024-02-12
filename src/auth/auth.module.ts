@@ -2,8 +2,8 @@ import { Module } from '@nestjs/common';
 import { UserModule } from 'src/user/user.module';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
-import { GoogleStrategy } from './utils/google.strategy';
-import { SessionSerializer } from './utils/serializer';
+import { GoogleStrategy } from './guards/google-oauth.strategy';
+import { SessionSerializer } from './guards/serializer';
 
 @Module({
   imports: [UserModule],
