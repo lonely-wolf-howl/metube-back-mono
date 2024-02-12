@@ -7,24 +7,15 @@ import {
 } from 'typeorm';
 
 @Entity()
-export class Video {
+export class User {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @Column()
-  title: string;
+  displayName: string;
 
-  @Column()
-  username: string;
-
-  @Column()
+  @Column({ unique: true })
   email: string;
-
-  @Column()
-  mimetype: string;
-
-  @Column({ name: 'download_count', default: 0 })
-  downloadCount: number;
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;

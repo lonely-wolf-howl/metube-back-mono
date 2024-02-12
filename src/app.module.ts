@@ -4,8 +4,9 @@ import { AppService } from './app.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import postgresConfig from './config/postgres.config';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
-import { VideoModule } from './video/video.module';
 import { HealthModule } from './health/health.module';
+import { AuthModule } from './auth/auth.module';
+import { UserModule } from './user/user.module';
 
 @Module({
   imports: [
@@ -24,18 +25,19 @@ import { HealthModule } from './health/health.module';
           username: configService.get('postgres.username'),
           password: configService.get('postgres.password'),
           autoLoadEntities: true,
-          synchronize: false,
+          synchronize: true,
         };
-        if (configService.get('STAGE') === 'local') {
+        if (configService.get('STAGE') === 'LOCAL') {
           object = Object.assign(object, {
-            logging: true,
+            logging: false,
           });
         }
         return object;
       },
     }),
-    VideoModule,
     HealthModule,
+    AuthModule,
+    UserModule,
   ],
   controllers: [AppController],
   providers: [AppService],
