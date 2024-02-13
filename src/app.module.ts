@@ -5,8 +5,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import postgresConfig from './config/postgres.config';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { HealthModule } from './health/health.module';
-import { AuthModule } from './auth/auth.module';
-import { UserModule } from './user/user.module';
+import { VideoModule } from './video/video.module';
 
 @Module({
   imports: [
@@ -36,8 +35,7 @@ import { UserModule } from './user/user.module';
       },
     }),
     HealthModule,
-    AuthModule,
-    UserModule,
+    VideoModule,
   ],
   controllers: [AppController],
   providers: [AppService],
