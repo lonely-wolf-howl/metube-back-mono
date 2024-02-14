@@ -14,14 +14,17 @@ export class Video {
   @Column()
   title: string;
 
-  @Column()
+  @Column({ name: 'display_name' })
   displayName: string;
 
-  @Column()
+  @Column({ unique: true })
   email: string;
 
   @Column()
   mimetype: string;
+
+  @Column({ name: 'view_count', default: 0 })
+  viewCount: number;
 
   @Column({ name: 'download_count', default: 0 })
   downloadCount: number;

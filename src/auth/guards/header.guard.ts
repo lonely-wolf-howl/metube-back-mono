@@ -12,7 +12,6 @@ export class HeaderGuard implements CanActivate {
     context: ExecutionContext
   ): boolean | Promise<boolean> | Observable<boolean> {
     const headers = context.switchToHttp().getRequest().headers;
-    console.log(headers);
     if (!headers.displayname || !headers.email) {
       throw new UnauthorizedException();
     }

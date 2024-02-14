@@ -1,10 +1,12 @@
 import {
   Body,
   Controller,
+  Get,
   Headers,
   HttpStatus,
   ParseFilePipeBuilder,
   Post,
+  Query,
   UploadedFile,
   UseInterceptors,
   UseGuards,
@@ -14,6 +16,7 @@ import { CreateVideoCommand } from './command/create-video.command';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { HeaderGuard } from '../auth/guards/header.guard';
+import { FindVideosQuery } from './query/find-videos.query';
 
 @Controller('videos')
 export class VideoController {
@@ -49,7 +52,7 @@ export class VideoController {
 
     const command = new CreateVideoCommand(
       title,
-      displayName,
+      decodeURIComponent(displayName),
       email,
       mimetype,
       extension,
@@ -57,5 +60,20 @@ export class VideoController {
     );
     const { id, username } = await this.commandBus.execute(command);
     return { id, title, username };
+  }
+
+  @Get()
+  async findAll(@Query() { page, size }) {
+    const findVideosQuery = new FindVideosQuery(page, size);
+    const videos = await this.queryBus.execute(findVideosQuery);
+    return videos.map(({ id, source, title, displayName, viewCount }) => {
+      return {
+        id,
+        source,
+        title,
+        displayName,
+        viewCount,
+      };
+    });
   }
 }
