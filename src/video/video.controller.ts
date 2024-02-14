@@ -8,6 +8,8 @@ import {
   ParseFilePipeBuilder,
   Post,
   Query,
+  Res,
+  StreamableFile,
   UploadedFile,
   UseInterceptors,
   UseGuards,
@@ -18,13 +20,16 @@ import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { HeaderGuard } from '../auth/guards/header.guard';
 import { FindVideosQuery } from './query/find-videos.query';
+import { S3Service } from '../s3/s3.service';
+import { Response } from 'express';
 
 @Controller('videos')
 export class VideoController {
   constructor(
     private readonly videoService: VideoService,
     private commandBus: CommandBus,
-    private queryBus: QueryBus
+    private queryBus: QueryBus,
+    private readonly s3Service: S3Service
   ) {}
 
   @UseGuards(HeaderGuard)
@@ -89,5 +94,15 @@ export class VideoController {
       displayName,
       viewCount,
     };
+  }
+
+  @Get(':id/download')
+  async download(@Param() { id }, @Res({ passthrough: true }) res: Response) {
+    const { stream, mimetype, size } = await this.s3Service.downloadVideo(id);
+    res.set({
+      'Content-Length': size,
+      'Content-Type': mimetype,
+    });
+    return new StreamableFile(stream);
   }
 }

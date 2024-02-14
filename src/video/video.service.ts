@@ -12,6 +12,13 @@ export class VideoService {
     private readonly s3Service: S3Service
   ) {}
 
+  async findOneById(id: string) {
+    const video = await this.videoRepository.findOne({
+      where: { id },
+    });
+    return video;
+  }
+
   async findOne(id: string) {
     const video = await this.videoRepository.findOne({
       where: { id },

@@ -1,16 +1,21 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import {
   S3Client,
   GetObjectCommand,
   PutObjectCommand,
 } from '@aws-sdk/client-s3';
 import { Readable } from 'stream';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Video } from '../video/entity/video.entity';
 
 @Injectable()
 export class S3Service {
   private readonly s3Client: S3Client;
 
-  constructor() {
+  constructor(
+    @InjectRepository(Video) private videoRepository: Repository<Video>
+  ) {
     this.s3Client = new S3Client({
       region: 'ap-northeast-2',
       credentials: {
@@ -44,22 +49,24 @@ export class S3Service {
     }
   }
 
-  async downloadVideo(videoId: string): Promise<Buffer> {
+  async downloadVideo(videoId: string) {
     try {
-      const { Body } = await this.s3Client.send(
+      const { Body, ContentLength } = await this.s3Client.send(
         new GetObjectCommand({
           Bucket: process.env.AWS_S3_BUCKET,
           Key: videoId,
         })
       );
       const stream = Body as Readable;
-      const chunks: Uint8Array[] = [];
+      const size = ContentLength;
 
-      for await (const chunk of stream) {
-        chunks.push(chunk);
-      }
+      const video = await this.videoRepository.findOne({
+        where: { id: videoId },
+      });
+      if (!video) throw new NotFoundException();
+      const { mimetype } = video;
 
-      return Buffer.concat(chunks);
+      return { stream, mimetype, size };
     } catch (error) {
       throw error;
     }
