@@ -4,6 +4,7 @@ import {
   Get,
   Headers,
   HttpStatus,
+  Param,
   ParseFilePipeBuilder,
   Post,
   Query,
@@ -75,5 +76,18 @@ export class VideoController {
         viewCount,
       };
     });
+  }
+
+  @Get(':id')
+  async findOne(@Param() { id }) {
+    const { source, title, displayName, viewCount } =
+      await this.videoService.findOne(id);
+    return {
+      id,
+      source,
+      title,
+      displayName,
+      viewCount,
+    };
   }
 }

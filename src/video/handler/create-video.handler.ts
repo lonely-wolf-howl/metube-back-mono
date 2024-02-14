@@ -3,26 +3,17 @@ import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 import { DataSource } from 'typeorm';
 import { CreateVideoCommand } from '../command/create-video.command';
 import { Video } from '../entity/video.entity';
+import { S3Service } from '../../s3/s3.service';
 import { VideoCreatedEvent } from '../event/video-created.event';
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 
 @Injectable()
 @CommandHandler(CreateVideoCommand)
 export class CreateVideoHandler implements ICommandHandler<CreateVideoCommand> {
-  private readonly s3Client: S3Client;
-
   constructor(
     private dataSource: DataSource,
+    private readonly s3Service: S3Service,
     private readonly eventBus: EventBus
-  ) {
-    this.s3Client = new S3Client({
-      region: 'ap-northeast-2',
-      credentials: {
-        accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-      },
-    });
-  }
+  ) {}
 
   async execute(command: CreateVideoCommand): Promise<any> {
     const { title, displayName, email, mimetype, buffer } = command;
@@ -40,7 +31,7 @@ export class CreateVideoHandler implements ICommandHandler<CreateVideoCommand> {
         })
       );
 
-      await this.uploadVideo(video.id, buffer);
+      await this.s3Service.uploadVideo(video.id, buffer);
       await queryRunner.commitTransaction();
 
       this.eventBus.publish(new VideoCreatedEvent(video.id));
@@ -52,21 +43,6 @@ export class CreateVideoHandler implements ICommandHandler<CreateVideoCommand> {
     } finally {
       await queryRunner.release();
       if (error) throw error;
-    }
-  }
-
-  private async uploadVideo(fileName: string, buffer: Buffer) {
-    try {
-      await this.s3Client.send(
-        new PutObjectCommand({
-          Bucket: process.env.AWS_S3_BUCKET,
-          Key: fileName,
-          Body: buffer,
-          ACL: 'public-read',
-        })
-      );
-    } catch (error) {
-      throw error;
     }
   }
 }

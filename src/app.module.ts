@@ -6,6 +6,7 @@ import postgresConfig from './config/postgres.config';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { HealthModule } from './health/health.module';
 import { VideoModule } from './video/video.module';
+import { S3Module } from './s3/s3.module';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { VideoModule } from './video/video.module';
     }),
     HealthModule,
     VideoModule,
+    S3Module,
   ],
   controllers: [AppController],
   providers: [AppService],
