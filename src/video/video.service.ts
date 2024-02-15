@@ -16,14 +16,12 @@ export class VideoService {
     const video = await this.videoRepository.findOne({
       where: { id },
     });
+    if (!video) throw new NotFoundException();
     return video;
   }
 
   async findOne(id: string) {
-    const video = await this.videoRepository.findOne({
-      where: { id },
-    });
-    if (!video) throw new NotFoundException();
+    const video = await this.findOneById(id);
 
     const source = await this.s3Service.getVideoUrl(video.id);
     const videoWithSource: VideoWithSource = {
@@ -31,5 +29,19 @@ export class VideoService {
       source: source,
     };
     return videoWithSource;
+  }
+
+  async increaseViewCount(id: string) {
+    await this.videoRepository.update(
+      { id },
+      { viewCount: () => 'view_count + 1' }
+    );
+  }
+
+  async increaseDownloadCount(id: string) {
+    await this.videoRepository.update(
+      { id },
+      { downloadCount: () => 'download_count + 1' }
+    );
   }
 }

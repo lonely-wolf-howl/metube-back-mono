@@ -69,7 +69,7 @@ export class VideoController {
   }
 
   @Get()
-  async findAll(@Query() { page, size }) {
+  async findAll(@Query() { page, size }: { page: number; size: number }) {
     const findVideosQuery = new FindVideosQuery(page, size);
     const videos = await this.queryBus.execute(findVideosQuery);
     return videos.map(({ id, source, title, displayName, viewCount }) => {
@@ -84,7 +84,7 @@ export class VideoController {
   }
 
   @Get(':id')
-  async findOne(@Param() { id }) {
+  async findOne(@Param() { id }: { id: string }) {
     const { source, title, displayName, viewCount } =
       await this.videoService.findOne(id);
     return {
@@ -96,13 +96,26 @@ export class VideoController {
     };
   }
 
+  @Post(':id/view-count')
+  async increaseViewCount(@Param() { id }: { id: string }) {
+    return await this.videoService.increaseViewCount(id);
+  }
+
   @Get(':id/download')
-  async download(@Param() { id }, @Res({ passthrough: true }) res: Response) {
+  async download(
+    @Param() { id }: { id: string },
+    @Res({ passthrough: true }) res: Response
+  ) {
     const { stream, mimetype, size } = await this.s3Service.downloadVideo(id);
     res.set({
       'Content-Length': size,
       'Content-Type': mimetype,
     });
     return new StreamableFile(stream);
+  }
+
+  @Post(':id/download-count')
+  async increaseDownloadCount(@Param() { id }: { id: string }) {
+    return await this.videoService.increaseDownloadCount(id);
   }
 }
