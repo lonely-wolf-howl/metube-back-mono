@@ -9,6 +9,7 @@ import { VideoModule } from './video/video.module';
 import { S3Module } from './s3/s3.module';
 import swaggerConfig from './config/swagger.config';
 import { ThrottlerModule } from '@nestjs/throttler';
+import sentryConfig from './config/sentry.config';
 
 @Module({
   imports: [
@@ -21,7 +22,7 @@ import { ThrottlerModule } from '@nestjs/throttler';
     ]),
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [postgresConfig, swaggerConfig],
+      load: [postgresConfig, swaggerConfig, sentryConfig],
     }),
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],

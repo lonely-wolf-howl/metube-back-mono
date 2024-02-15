@@ -9,4 +9,9 @@ export class AppController {
   sayPong(): string {
     return this.appService.sayPong();
   }
+
+  @Get('sentry')
+  throwError(): void {
+    throw new Error('SENTRY - ERROR TEST');
+  }
 }

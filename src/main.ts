@@ -11,10 +11,13 @@ import * as session from 'express-session';
 import * as passport from 'passport';
 import * as basicAuth from 'express-basic-auth';
 import { ConfigService } from '@nestjs/config';
+import { SentryInterceptor } from './common/interceptors/sentry.interceptor';
+import { TransformInterceptor } from './common/interceptors/transform.interceptor';
 
 async function bootstrap() {
   const port = 4000;
   const app = await NestFactory.create(AppModule);
+
   const configService = app.get(ConfigService);
 
   app.setGlobalPrefix('api');
@@ -56,10 +59,9 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('docs', app, document, customOptions);
 
-  // ValidationPipe
+  // ValidationPipes
   app.useGlobalPipes(
     new ValidationPipe({
-      // class-transformer
       transform: true,
     })
   );
@@ -69,6 +71,12 @@ async function bootstrap() {
       origin: 'http://localhost:3000',
       methods: 'GET, POST',
     })
+  );
+
+  // Interceptors
+  app.useGlobalInterceptors(
+    new SentryInterceptor(),
+    new TransformInterceptor()
   );
 
   await app.listen(port);
