@@ -22,7 +22,24 @@ import { HeaderGuard } from '../auth/guards/header.guard';
 import { FindVideosQuery } from './query/find-videos.query';
 import { S3Service } from '../s3/s3.service';
 import { Response } from 'express';
+import { ApiConsumes, ApiExtraModels, ApiTags } from '@nestjs/swagger';
+import {
+  ApiGetItemsResponse,
+  ApiGetResponse,
+  ApiPostResponse,
+} from 'src/common/decorators/swagger.decorator';
+import { CreateVideoReqDto, FindVideoReqDto } from './dto/req.dto';
+import { CreateVideoResDto, FindVideoResDto } from './dto/res.dto';
+import { PageReqDto } from 'src/common/dto/req.dto';
 
+@ApiTags('Video')
+@ApiExtraModels(
+  CreateVideoReqDto,
+  CreateVideoResDto,
+  PageReqDto,
+  FindVideoReqDto,
+  FindVideoResDto
+)
 @Controller('videos')
 export class VideoController {
   constructor(
@@ -32,6 +49,8 @@ export class VideoController {
     private readonly s3Service: S3Service
   ) {}
 
+  @ApiConsumes('multipart/form-data')
+  @ApiPostResponse(CreateVideoResDto)
   @UseGuards(HeaderGuard)
   @UseInterceptors(FileInterceptor('video'))
   @Post()
@@ -51,8 +70,9 @@ export class VideoController {
         })
     )
     file: Express.Multer.File,
-    @Body('title') title: string
-  ) {
+    @Body() createVideoReqDto: CreateVideoReqDto
+  ): Promise<CreateVideoResDto> {
+    const { title } = createVideoReqDto;
     const { mimetype, originalname, buffer } = file;
     const extension = originalname.split('.')[1];
 
@@ -68,8 +88,11 @@ export class VideoController {
     return { id, title, username };
   }
 
+  @ApiGetItemsResponse(FindVideoResDto)
   @Get()
-  async findAll(@Query() { page, size }: { page: number; size: number }) {
+  async findAll(
+    @Query() { page, size }: PageReqDto
+  ): Promise<FindVideoResDto[]> {
     const findVideosQuery = new FindVideosQuery(page, size);
     const videos = await this.queryBus.execute(findVideosQuery);
     return videos.map(({ id, source, title, displayName, viewCount }) => {
@@ -83,8 +106,9 @@ export class VideoController {
     });
   }
 
+  @ApiGetResponse(FindVideoResDto)
   @Get(':id')
-  async findOne(@Param() { id }: { id: string }) {
+  async findOne(@Param() { id }: FindVideoReqDto): Promise<FindVideoResDto> {
     const { source, title, displayName, viewCount } =
       await this.videoService.findOne(id);
     return {

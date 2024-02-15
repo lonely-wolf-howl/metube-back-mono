@@ -25,7 +25,7 @@ export class S3Service {
     });
   }
 
-  async uploadVideo(fileName: string, buffer: Buffer) {
+  async uploadVideo(fileName: string, buffer: Buffer): Promise<void> {
     try {
       await this.s3Client.send(
         new PutObjectCommand({

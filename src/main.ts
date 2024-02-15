@@ -9,10 +9,13 @@ import { AppModule } from './app.module';
 import * as cors from 'cors';
 import * as session from 'express-session';
 import * as passport from 'passport';
+import * as basicAuth from 'express-basic-auth';
+import { ConfigService } from '@nestjs/config';
 
 async function bootstrap() {
   const port = 4000;
   const app = await NestFactory.create(AppModule);
+  const configService = app.get(ConfigService);
 
   app.setGlobalPrefix('api');
   app.use(
@@ -29,6 +32,16 @@ async function bootstrap() {
   app.use(passport.session());
 
   // Swagger
+  app.use(
+    ['/docs', '/docs-json'],
+    basicAuth({
+      challenge: true,
+      users: {
+        [configService.get('swagger.user')]:
+          configService.get('swagger.password'),
+      },
+    })
+  );
   const config = new DocumentBuilder()
     .setTitle('MeTube')
     .setDescription('MeTube API description')
