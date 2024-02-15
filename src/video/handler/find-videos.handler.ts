@@ -25,7 +25,6 @@ export class FindVideosQueryHandler implements IQueryHandler<FindVideosQuery> {
     });
 
     const videosWithSource: VideoWithSource[] = [];
-
     for (const video of videos) {
       const videoId = video.id;
       const source = await this.s3Service.getVideoUrl(videoId);
