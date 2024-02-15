@@ -8,9 +8,17 @@ import { HealthModule } from './health/health.module';
 import { VideoModule } from './video/video.module';
 import { S3Module } from './s3/s3.module';
 import swaggerConfig from './config/swagger.config';
+import { ThrottlerModule } from '@nestjs/throttler';
 
 @Module({
   imports: [
+    ThrottlerModule.forRoot([
+      {
+        name: 'video',
+        ttl: 60, // 1 min
+        limit: 20,
+      },
+    ]),
     ConfigModule.forRoot({
       isGlobal: true,
       load: [postgresConfig, swaggerConfig],

@@ -31,6 +31,8 @@ import {
 import { CreateVideoReqDto, FindVideoReqDto } from './dto/req.dto';
 import { CreateVideoResDto, FindVideoResDto } from './dto/res.dto';
 import { PageReqDto } from 'src/common/dto/req.dto';
+import { ThrottlerBehindProxyGuard } from 'src/common/guards/throttler-behind-proxy.guard';
+import { SkipThrottle, Throttle } from '@nestjs/throttler';
 
 @ApiTags('Video')
 @ApiExtraModels(
@@ -40,6 +42,7 @@ import { PageReqDto } from 'src/common/dto/req.dto';
   FindVideoReqDto,
   FindVideoResDto
 )
+@UseGuards(ThrottlerBehindProxyGuard)
 @Controller('videos')
 export class VideoController {
   constructor(
@@ -53,6 +56,7 @@ export class VideoController {
   @ApiPostResponse(CreateVideoResDto)
   @UseGuards(HeaderGuard)
   @UseInterceptors(FileInterceptor('video'))
+  @Throttle({ default: { limit: 6, ttl: 60 } })
   @Post()
   async upload(
     @Headers('displayname') displayName: string,
@@ -89,6 +93,7 @@ export class VideoController {
   }
 
   @ApiGetItemsResponse(FindVideoResDto)
+  @SkipThrottle()
   @Get()
   async findAll(
     @Query() { page, size }: PageReqDto
@@ -107,6 +112,7 @@ export class VideoController {
   }
 
   @ApiGetResponse(FindVideoResDto)
+  @SkipThrottle()
   @Get(':id')
   async findOne(@Param() { id }: FindVideoReqDto): Promise<FindVideoResDto> {
     const { source, title, displayName, viewCount } =
@@ -125,6 +131,7 @@ export class VideoController {
     return await this.videoService.increaseViewCount(id);
   }
 
+  @Throttle({ default: { limit: 6, ttl: 60 } })
   @Get(':id/download')
   async download(
     @Param() { id }: { id: string },
