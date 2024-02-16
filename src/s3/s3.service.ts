@@ -49,7 +49,9 @@ export class S3Service {
     }
   }
 
-  async downloadVideo(videoId: string) {
+  async downloadVideo(
+    videoId: string
+  ): Promise<{ stream: Readable; mimetype: string; size: number }> {
     try {
       const { Body, ContentLength } = await this.s3Client.send(
         new GetObjectCommand({
