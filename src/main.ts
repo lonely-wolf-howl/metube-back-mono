@@ -1,14 +1,8 @@
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
-import {
-  DocumentBuilder,
-  SwaggerCustomOptions,
-  SwaggerModule,
-} from '@nestjs/swagger';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import * as cors from 'cors';
-import * as session from 'express-session';
-import * as passport from 'passport';
 import * as basicAuth from 'express-basic-auth';
 import { ConfigService } from '@nestjs/config';
 import { SentryInterceptor } from './common/interceptors/sentry.interceptor';
@@ -17,7 +11,6 @@ import { WinstonModule, utilities } from 'nest-winston';
 import * as winston from 'winston';
 
 async function bootstrap() {
-  const port = 4000;
   const app = await NestFactory.create(AppModule, {
     logger: WinstonModule.createLogger({
       transports: [
@@ -31,22 +24,10 @@ async function bootstrap() {
       ],
     }),
   });
+  const port = 4000;
+  app.setGlobalPrefix('api');
 
   const configService = app.get(ConfigService);
-
-  app.setGlobalPrefix('api');
-  app.use(
-    session({
-      secret: process.env.SESSION_SECRET,
-      saveUninitialized: false,
-      resave: false,
-      cookie: {
-        maxAge: 60 * 60 * 1000, // 1 hour
-      },
-    })
-  );
-  app.use(passport.initialize());
-  app.use(passport.session());
 
   // Swagger
   app.use(
@@ -65,13 +46,8 @@ async function bootstrap() {
     .setVersion('1.0')
     .addBearerAuth()
     .build();
-  const customOptions: SwaggerCustomOptions = {
-    swaggerOptions: {
-      persistAuthorization: true,
-    },
-  };
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('docs', app, document, customOptions);
+  SwaggerModule.setup('docs', app, document);
 
   // ValidationPipes
   app.useGlobalPipes(
