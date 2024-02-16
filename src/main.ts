@@ -6,7 +6,6 @@ import * as cors from 'cors';
 import * as basicAuth from 'express-basic-auth';
 import { ConfigService } from '@nestjs/config';
 import { SentryInterceptor } from './common/interceptors/sentry.interceptor';
-import { TransformInterceptor } from './common/interceptors/transform.interceptor';
 import { WinstonModule, utilities } from 'nest-winston';
 import * as winston from 'winston';
 
@@ -64,10 +63,7 @@ async function bootstrap() {
   );
 
   // Interceptors
-  app.useGlobalInterceptors(
-    new SentryInterceptor(),
-    new TransformInterceptor()
-  );
+  app.useGlobalInterceptors(new SentryInterceptor());
 
   await app.listen(port);
   Logger.log(`STAGE: ${process.env.STAGE}`);

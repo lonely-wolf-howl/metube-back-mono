@@ -33,6 +33,7 @@ import { CreateVideoResDto, FindVideoResDto } from './dto/res.dto';
 import { PageReqDto } from 'src/common/dto/req.dto';
 import { ThrottlerBehindProxyGuard } from 'src/common/guards/throttler-behind-proxy.guard';
 import { SkipThrottle, Throttle } from '@nestjs/throttler';
+import { FindVideoQuery } from './query/find-video.query';
 
 @ApiTags('Video')
 @ApiExtraModels(
@@ -115,8 +116,9 @@ export class VideoController {
   @SkipThrottle()
   @Get(':id')
   async findOne(@Param() { id }: FindVideoReqDto): Promise<FindVideoResDto> {
+    const findVideoQuery = new FindVideoQuery(id);
     const { source, title, displayName, viewCount } =
-      await this.videoService.findOne(id);
+      await this.queryBus.execute(findVideoQuery);
     return {
       id,
       source,

@@ -3,7 +3,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Video } from './entity/video.entity';
 import { S3Service } from '../s3/s3.service';
-import { VideoWithSource } from '../types/type';
 
 @Injectable()
 export class VideoService {
@@ -18,17 +17,6 @@ export class VideoService {
     });
     if (!video) throw new NotFoundException();
     return video;
-  }
-
-  async findOne(id: string): Promise<VideoWithSource> {
-    const video = await this.findOneById(id);
-
-    const source = await this.s3Service.getVideoUrl(video.id);
-    const videoWithSource: VideoWithSource = {
-      ...video,
-      source: source,
-    };
-    return videoWithSource;
   }
 
   async increaseViewCount(id: string): Promise<void> {

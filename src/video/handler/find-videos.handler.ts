@@ -15,7 +15,7 @@ export class FindVideosQueryHandler implements IQueryHandler<FindVideosQuery> {
     private readonly s3Service: S3Service
   ) {}
 
-  async execute({ page, size }: FindVideosQuery): Promise<any> {
+  async execute({ page, size }: FindVideosQuery): Promise<VideoWithSource[]> {
     const videos = await this.videoRepository.find({
       skip: (page - 1) * size,
       take: size,
