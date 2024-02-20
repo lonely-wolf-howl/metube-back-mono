@@ -8,7 +8,9 @@ import { VideoCreatedEvent } from '../event/video-created.event';
 
 @Injectable()
 @CommandHandler(CreateVideoCommand)
-export class CreateVideoHandler implements ICommandHandler<CreateVideoCommand> {
+export class CreateVideoCommandHandler
+  implements ICommandHandler<CreateVideoCommand>
+{
   constructor(
     private dataSource: DataSource,
     private readonly s3Service: S3Service,

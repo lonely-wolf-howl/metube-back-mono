@@ -2,13 +2,11 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Video } from './entity/video.entity';
-import { S3Service } from '../s3/s3.service';
 
 @Injectable()
 export class VideoService {
   constructor(
-    @InjectRepository(Video) private videoRepository: Repository<Video>,
-    private readonly s3Service: S3Service
+    @InjectRepository(Video) private videoRepository: Repository<Video>
   ) {}
 
   async findOneById(id: string): Promise<Video> {

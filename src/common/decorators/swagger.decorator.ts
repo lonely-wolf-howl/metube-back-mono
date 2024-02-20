@@ -6,16 +6,6 @@ import {
 } from '@nestjs/swagger';
 import { PageResDto } from '../dto/res.dto';
 
-export const ApiGetResponse = <TModel extends Type<any>>(model: TModel) => {
-  return applyDecorators(
-    ApiOkResponse({
-      schema: {
-        allOf: [{ $ref: getSchemaPath(model) }],
-      },
-    })
-  );
-};
-
 export const ApiPostResponse = <TModel extends Type<any>>(model: TModel) => {
   return applyDecorators(
     ApiCreatedResponse({
@@ -44,6 +34,16 @@ export const ApiGetItemsResponse = <TModel extends Type<any>>(
             required: ['items'],
           },
         ],
+      },
+    })
+  );
+};
+
+export const ApiGetResponse = <TModel extends Type<any>>(model: TModel) => {
+  return applyDecorators(
+    ApiOkResponse({
+      schema: {
+        allOf: [{ $ref: getSchemaPath(model) }],
       },
     })
   );
